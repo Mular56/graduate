@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Library Management System{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .hero {
+            background: url('https://example.com/library-hero.jpg') no-repeat center center;
+            background-size: cover;
+            color: white;
+            padding: 100px 0;
+        }
+        .hero h1,
+        .hero p {
+            color: black; /* Change the text color to black */
+        }
+        .hero h1 {
+            font-size: 3em;
+        }
+        .book-cover {
+            height: 200px;
+            object-fit: cover;
+        }
+        .featured-section {
+            padding: 50px 0;
+        }
+        .card {
+            margin: 10px;
+        }
+        .hero a.btn {
+            color: black; /* Change this to your desired color for the button text */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'home' %}">Library Management</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <form action="{% url 'search_books' %}" method="GET" class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Пошук книг за назвою" aria-label="Пошук" name="query">
+                    <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Пошук</button>
+                </form>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'catalog' %}">Каталог книг</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'borrow_requests' %}">Позики</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="navbar-text text-primary">Вітаємо, {{ user.username }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link nav-link" >Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    {% block content %}
+    <div class="hero text-center">
+        <div class="container">
+            <h1>Ласкаво просимо до Library Management</h1>
+            <hr>
+
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg" style="color: white;">Стати частиною бібліотеки</a>
+            <p class="lead">Долучайтеся до нашої бібліотеки та знайдіть свої улюблені книги.</p>
+            <hr>
+            
+            
+
+        </div>
+    </div>
+    {% endblock %}
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
