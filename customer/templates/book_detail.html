@@ -12,10 +12,14 @@
 
     {% if user.is_authenticated %}
         <div class="mb-3">
-            <form action="{% url 'create_borrow_request' book.id %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Запит на позику</button>
-            </form>
+            {% if book.available %}
+                <form action="{% url 'create_borrow_request' book.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Запит на позику</button>
+                </form>
+            {% else %}
+                <button class="btn btn-secondary" disabled>Книга недоступна</button>
+            {% endif %}
         </div>
 
         {% if user.is_staff %}

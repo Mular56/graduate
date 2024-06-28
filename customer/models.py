@@ -55,3 +55,12 @@ class BorrowRequest(models.Model):
 
     def __str__(self):
         return f"{self.book.title} - {self.borrower.username}"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.status in [self.APPROVED, self.COLLECTED]:
+            self.book.available = False
+        else:
+            if not BorrowRequest.objects.filter(book=self.book, status__in=[self.APPROVED, self.COLLECTED]).exists():
+                self.book.available = True
+        self.book.save()

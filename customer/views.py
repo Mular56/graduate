@@ -97,10 +97,8 @@ def search_books(request):
 @login_required
 def borrow_requests(request):
     if request.user.is_staff:
-        # Показуємо всі запити на позику для бібліотекарів
         borrow_requests = BorrowRequest.objects.all()
     else:
-        # Показуємо тільки запити на позику користувача для звичайних користувачів
         borrow_requests = BorrowRequest.objects.filter(borrower=request.user)
 
     context = {
@@ -130,39 +128,34 @@ def change_borrow_request_status(request, request_id):
 def create_borrow_request(request, pk):
     book = get_object_or_404(Book, pk=pk)
 
-    # Перевіряємо, чи є вже запит на цю книгу від користувача
-    existing_request = BorrowRequest.objects.filter(book=book, borrower=request.user, status=BorrowRequest.PENDING).exists()
-    if existing_request:
-        # Можна обробити цей випадок відповідно до бізнес-логіки
+    if not book.available:
+        messages.error(request, 'Ця книга зараз недоступна для позики.')
         return redirect('book_detail', pk=pk)
 
-    # Створюємо новий запит на позику
-    BorrowRequest.objects.create(book=book, borrower=request.user)
+    existing_request = BorrowRequest.objects.filter(book=book, borrower=request.user, status=BorrowRequest.PENDING).exists()
+    if existing_request:
+        messages.error(request, 'Ви вже подали запит на цю книгу.')
+        return redirect('book_detail', pk=pk)
 
-    # Можливо, додамо повідомлення про успіх
+    BorrowRequest.objects.create(book=book, borrower=request.user)
     messages.success(request, 'Запит на позику було створено.')
+
     return redirect('book_detail', pk=pk)
 
 @login_required
-@require_POST
 def collect_book(request, request_id):
-    borrow_request = get_object_or_404(BorrowRequest, pk=request_id)
+    borrow_request = get_object_or_404(BorrowRequest, pk=request_id, borrower=request.user)
     if borrow_request.status == BorrowRequest.APPROVED:
         borrow_request.status = BorrowRequest.COLLECTED
         borrow_request.save()
-        borrow_request.book.available = False
-        borrow_request.book.save()
     return redirect('borrow_requests')
 
 @login_required
-@require_POST
 def return_book(request, request_id):
-    borrow_request = get_object_or_404(BorrowRequest, pk=request_id)
+    borrow_request = get_object_or_404(BorrowRequest, pk=request_id, borrower=request.user)
     if borrow_request.status == BorrowRequest.COLLECTED:
         borrow_request.status = BorrowRequest.COMPLETE
         borrow_request.save()
-        borrow_request.book.available = True
-        borrow_request.book.save()
     return redirect('borrow_requests')
 
 

@@ -1,9 +1,9 @@
 from django.urls import path
 from .views import HomePageView, UserLoginView, UserLogoutView, UserRegisterView, \
-    book_catalog, book_detail, add_book, edit_book, delete_book, \
-        search_books, borrow_requests, change_borrow_request_status, \
-            create_borrow_request, collect_book, return_book, approve_borrow_request, \
-                decline_borrow_request
+    book_catalog, book_detail, add_book, edit_book, delete_book, search_books, borrow_requests, \
+            create_borrow_request, collect_book, return_book, approve_borrow_request, decline_borrow_request
+                
+from .api_views import BookListCreateAPIView, BookDetailAPIView, BorrowRequestListCreateAPIView, BorrowRequestDetailAPIView
 
 urlpatterns = [
     path('', HomePageView.as_view(), name='home'),
@@ -26,4 +26,9 @@ urlpatterns = [
     path('borrow_request/<int:request_id>/return/', return_book, name='return_book'),
     path('borrow_request/<int:request_id>/approve/', approve_borrow_request, name='approve_borrow_request'),
     path('borrow_request/<int:request_id>/decline/', decline_borrow_request, name='decline_borrow_request'),
+    
+    path('api/books/', BookListCreateAPIView.as_view(), name='api-book-list'),
+    path('api/books/<int:pk>/', BookDetailAPIView.as_view(), name='api-book-detail'),
+    path('api/borrow-requests/', BorrowRequestListCreateAPIView.as_view(), name='api-borrow-request-list'),
+    path('api/borrow-requests/<int:pk>/', BorrowRequestDetailAPIView.as_view(), name='api-borrow-request-detail'),
 ]
