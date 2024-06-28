@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h2 class="card-title">Logged Out</h2>
+                    <p>You have been logged out. <a href="{% url 'login' %}">Login again</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

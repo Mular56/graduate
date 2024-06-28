@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ book.title }}</h2>
+    <p><strong>Автори:</strong> {% for author in book.authors.all %}{{ author.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <p><strong>Опис:</strong> {{ book.summary }}</p>
+    <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+    <p><strong>Дата публікації:</strong> {{ book.published_date }}</p>
+    <p><strong>Видавець:</strong> {{ book.publisher }}</p>
+    <p><strong>Статус:</strong> {% if book.available %}Доступна{% else %}Не доступна{% endif %}</p>
+
+    {% if user.is_authenticated %}
+        <div class="mb-3">
+            {% if book.available %}
+                <form action="{% url 'create_borrow_request' book.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Запит на позику</button>
+                </form>
+            {% else %}
+                <button class="btn btn-secondary" disabled>Книга недоступна</button>
+            {% endif %}
+        </div>
+
+        {% if user.is_staff %}
+            <div class="mb-3">
+                <a href="{% url 'edit_book' book.id %}" class="btn btn-info">Змінити інформацію про книгу</a>
+            </div>
+            <div class="mb-3">
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteBookModal">Видалити книгу</button>
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <a href="{% url 'catalog' %}" class="btn btn-secondary">Назад до каталогу</a>
+</div>
+
+<!-- Модальне вікно для видалення книги -->
+{% if user.is_staff %}
+<div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteBookModalLabel">Видалення книги</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Ви впевнені, що хочете видалити книгу "{{ book.title }}"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Скасувати</button>
+                <form action="{% url 'delete_book' book.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

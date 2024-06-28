@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Мої позики</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Книга</th>
+                <th>Статус</th>
+                <th>Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in borrow_requests %}
+            <tr>
+                <td>{{ request.book.title }}</td>
+                <td>
+                    {{ request.get_status_display }}
+                    {% if request.status == 4 %}  <!-- Complete -->
+                        <span class="badge badge-success">✔</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_staff %}
+                        {% if request.status == 1 %}  <!-- Pending -->
+                            <form action="{% url 'approve_borrow_request' request.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">Схвалити</button>
+                            </form>
+                            <form action="{% url 'decline_borrow_request' request.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Відхилити</button>
+                            </form>
+                        {% endif %}
+                    {% else %}
+                        {% if request.status == 2 %}  <!-- Approved -->
+                            <button class="btn btn-success" onclick="document.getElementById('collect-form-{{ request.id }}').submit();">Забрати книгу</button>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>Забрати книгу</button>
+                        {% endif %}
+                        
+                        {% if request.status == 3 %}  <!-- Collected -->
+                            <button class="btn btn-warning" onclick="document.getElementById('return-form-{{ request.id }}').submit();">Повернути книгу</button>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>Повернути книгу</button>
+                        {% endif %}
+                        
+                        <form id="collect-form-{{ request.id }}" action="{% url 'collect_book' request.id %}" method="post" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                        
+                        <form id="return-form-{{ request.id }}" action="{% url 'return_book' request.id %}" method="post" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Change Borrow Request Status</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if borrow_request.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Status</button>
+    </form>
+    <a href="{% url 'borrow_requests' %}" class="btn btn-secondary mt-3">Back to Requests</a>
+</div>
+{% endblock %}
